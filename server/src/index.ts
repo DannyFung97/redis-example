@@ -1,9 +1,9 @@
 import express from "express";
-import configureSockets from "./sockets";
 import http from "http";
 import dotenv from "dotenv";
 import configureRoutes from "./routers";
 import cors from "cors";
+import { connect } from "./services/redis";
 
 dotenv.config();
 
@@ -18,10 +18,14 @@ const server = http.createServer(app);
 
 configureRoutes(app);
 
-// Configure WebSocket server
-configureSockets(server);
-
 // Start the server
-server.listen(port, () => {
+server.listen(port, async () => {
   console.log(`Server is running on port ${port}`);
+
+  try {
+    await connect();
+    console.log("Connected to Redis");
+  } catch (e) {
+    console.error("Failed to connect to Redis");
+  }
 });
